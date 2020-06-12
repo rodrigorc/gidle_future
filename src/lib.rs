@@ -211,6 +211,9 @@ where T: 'static,
 ///
 /// You can use this handle to cancel the future and to retrieve the return
 /// value of a future that has finished.
+///
+/// If the Handle is dropped, the future will keep on running, and there will
+/// be no way to cancel it or get the return value.
 pub struct Handle<T> {
     task: std::sync::Weak<GIdleTask>,
     res: Rc<Cell<Option<T>>>,
@@ -220,7 +223,10 @@ impl<T> Handle<T> {
     /// If the future has finished, it returns `Some(t)`.
     /// If it has not finished, the future is dropped and it returns `None`.
     pub fn cancel(self) -> Option<T> {
-        self.cancel_priv()
+        if let Some(task) = self.task.upgrade() {
+            task.future.take();
+        }
+        self.res.take()
     }
     /// Returns `true` if the future has finished, `false` otherwise.
     /// If it returns `true` then you can be sure that [`cancel`](#method.cancel) will return `Some(t)`.
@@ -232,12 +238,6 @@ impl<T> Handle<T> {
                 true
             }
         }
-    }
-    /// Consumes this handle without cancelling the future. By default dropping this handle
-    /// will cancel the future, but this functions prevents it.
-    /// Once detached, if the future finishes, the the return value is dropped immediately.
-    pub fn detach(mut self) {
-        self.task = std::sync::Weak::new();
     }
     /// Converts this handle into a future that is satisfied when the original job finishes.
     /// It returns the value returned by the original future.
@@ -252,22 +252,6 @@ impl<T> Handle<T> {
         //And the future cannot be cancelled, because both Handle::cancel() and Handle::future()
         //consume self, thus only one of them can be used.
         self.res.take().unwrap()
-    }
-
-    fn cancel_priv(&self) -> Option<T> {
-        //To cancel the future just drop it
-        if let Some(task) = self.task.upgrade() {
-            task.future.take();
-        }
-        self.res.take()
-    }
-}
-
-impl<T> Drop for Handle<T> {
-    /// Dropping a handle with automatically cancel the future. If you do not want that, either
-    /// keep this handle alive or call [`detach`](#method.detach).
-    fn drop(&mut self) {
-        self.cancel_priv();
     }
 }
 
