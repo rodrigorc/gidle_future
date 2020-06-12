@@ -7,7 +7,7 @@ license = "MIT OR Apache-2.0"
 description = "A future executor for the glib main loop idle time"
 readme = "README.md"
 categories = ["asynchronous", "no-std"]
-keywords = ["async", "await", "idle", "glib", "gtk-rs", "gui"]
+keywords = ["async", "await", "idle", "glib", "gtk-rs"]
 repository = "https://github.com/rodrigorc/gidle_future"
 documentation = "https://docs.rs/gidle_future"
 

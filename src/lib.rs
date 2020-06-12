@@ -13,6 +13,20 @@
 //! Naturally, you still need to be careful, because if you set up several idle futures at the same
 //! time they will be run intermixed.
 //!
+//! # What can it be used for?
+//!
+//! You can use this crate to implement async I/O that handles the GUI without the need of
+//! synchronization. For example you can download assets or updates from the internet, or provide
+//! an API for automating your GUI.
+//!
+//! You can also use async functions to implement background tasks that run when the program is
+//! idle. They can be interrupted at any time and they can update the GUI directly. A similar
+//! technique can be used to easily build a progress bar for a long-running process. Just add
+//! something like this call here and there:
+//! ```
+//! async_std::task::yield_now().await;
+//! ```
+//!
 //! # Working with other async frameworks
 //!
 //! You can run almost any future as an idle future, but if it uses functionality from any async
@@ -21,7 +35,8 @@
 //! a background thread that does the actual polling and wakes up the other futures. If this
 //! background thread is not created, nothing will be polled and your futures will stall forever.
 //!
-//! Fortunately, initializing these framewors is super easy, barely an inconvenience:
+//! You may think that interacting with other fraworks is going to be difficult. But actually it is
+//! super easy, barely an inconvenience:
 //!
 //! ## `async_std`
 //!
@@ -196,8 +211,6 @@ where T: 'static,
 ///
 /// You can use this handle to cancel the future and to retrieve the return
 /// value of a future that has finished.
-///
-/// There is no 
 pub struct Handle<T> {
     task: std::sync::Weak<GIdleTask>,
     res: Rc<Cell<Option<T>>>,
