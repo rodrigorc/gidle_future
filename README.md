@@ -2,7 +2,7 @@
 
 A future executor for the glib main loop idle time.
 
-[![Latest version](https://img.shields.io/crates/g/gidle_future.svg)](https://crates.io/crates/gidle_future)
+[![Latest version](https://img.shields.io/crates/v/gidle_future.svg)](https://crates.io/crates/gidle_future)
 [![Documentation](https://docs.rs/gidle_future/badge.svg)](https://docs.rs/gidle_future)
 
 It is compatible with most of the async frameworks out there, but you won't need complex synchronization primitives,
